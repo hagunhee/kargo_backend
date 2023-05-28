@@ -42,11 +42,13 @@ THIRD_PARTY_APPS = [
 CUSTOM_APPS = [
     "common.apps.CommonConfig",
     "users.apps.UsersConfig",
-    "sellers.apps.SellersConfig",
-    "brands.apps.BrandsConfig",
     "categories.apps.CategoriesConfig",
     "products.apps.ProductsConfig",
-    "referrals.apps.ReferralsConfig",
+    "orders.apps.OrdersConfig",
+    "reviews.apps.ReviewsConfig",
+    "carts.apps.CartsConfig",
+    "coupons.apps.CouponsConfig",
+    "notifications.apps.NotificationsConfig",
 ]
 
 SYSTEM_APPS = [

@@ -7,11 +7,13 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
     initial = True
 
-    dependencies = []
+    dependencies = [
+        ("products", "0001_initial"),
+    ]
 
     operations = [
         migrations.CreateModel(
-            name="Category",
+            name="Review",
             fields=[
                 (
                     "id",
@@ -22,19 +24,22 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("name", models.CharField(max_length=255)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                ("rating", models.PositiveIntegerField()),
+                ("content", models.TextField()),
+                ("is_deleted", models.BooleanField(default=False)),
                 (
-                    "parent_category",
+                    "product",
                     models.ForeignKey(
-                        blank=True,
-                        null=True,
-                        on_delete=django.db.models.deletion.SET_NULL,
-                        to="categories.category",
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="reviews",
+                        to="products.product",
                     ),
                 ),
             ],
             options={
-                "verbose_name_plural": "Categories",
+                "abstract": False,
             },
         ),
     ]

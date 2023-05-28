@@ -4,7 +4,7 @@ from common.models import CommonModel
 
 class Product(CommonModel):
     brand = models.ForeignKey(
-        "brands.Brand",
+        "users.Brand",
         on_delete=models.SET_NULL,
         related_name="products",
         null=True,
@@ -21,6 +21,7 @@ class Product(CommonModel):
     description = models.TextField(blank=True)
     imageURL = models.ImageField(upload_to="product_images", blank=True)
     is_deleted = models.BooleanField(default=False)
+    weight = models.PositiveIntegerField(default=0)
     ##레퍼럴에 대한 커미션을 설정한다.
     commission = models.PositiveIntegerField(default=0)
 
@@ -29,15 +30,24 @@ class Product(CommonModel):
 
 
 class ProductPost(CommonModel):
-    product = models.ForeignKey(
+    name = models.CharField(max_length=255, default="")
+    # product와 연결하는데 manytomany로 연결한다.
+    product = models.ManyToManyField(
         "products.Product",
-        on_delete=models.CASCADE,
         related_name="product_posts",
     )
-    price_for_1 = models.PositiveIntegerField()
-    price_for_2 = models.PositiveIntegerField()
-    price_for_10 = models.PositiveIntegerField()
-    price_for_50 = models.PositiveIntegerField()
+    weight = models.ForeignKey(
+        "products.Weight",
+        on_delete=models.SET_NULL,
+        related_name="product_posts",
+        null=True,
+        blank=True,
+    )
+
+    price_for_1 = models.PositiveIntegerField(null=True, blank=True)
+    price_for_2 = models.PositiveIntegerField(null=True, blank=True)
+    price_for_10 = models.PositiveIntegerField(null=True, blank=True)
+    price_for_50 = models.PositiveIntegerField(null=True, blank=True)
     visibility = models.BooleanField(default=False)
     publish_time = models.DateTimeField()
     onsale = models.BooleanField(default=False)
