@@ -1,4 +1,5 @@
 from django.db import models
+from common.models import CommonModel
 
 ##패런츠 카테고리 필드를 FK로 설정하여 동일한 테이블내의 다른 카테고리를 부모로 갖을 수 있다.
 
@@ -12,3 +13,7 @@ class Category(models.Model):
 
     class Meta:
         verbose_name_plural = "Categories"
+
+class ExchangeRate(CommonModel):
+    #국가별 환율을 저장하는 테이블
+    cu        

@@ -1,21 +1,18 @@
-import os
-from pathlib import Path
-import environ
-from typing import Iterable, Optional
+from utils import HashidHandler
 from django.db import models
 from django.contrib.auth.models import AbstractUser  # Custom User Model
 from common.models import CommonModel
 from products.models import ProductPost
-from hashids import Hashids
-
-
-env = environ.Env()
-BASE_DIR = Path(__file__).resolve().parent.parent
-environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
-salt = env("SALT")
 
 
 class User(AbstractUser):
+    class GradeChoices(models.TextChoices):
+        BRONZE = ("bronze", "Bronze")
+        SILVER = ("silver", "Silver")
+        GOLD = ("gold", "Gold")
+        PLATINUM = ("platinum", "Platinum")
+        DIAMOND = ("diamond", "Diamond")
+
     class RoleKindChoices(models.TextChoices):
         USER = ("user", "User")
         INFLUENCER = ("influencer", "Influencer")
@@ -47,23 +44,41 @@ class User(AbstractUser):
     mileage = models.IntegerField(default=0)
     is_deleted = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
-    
+    # 회원이 일정 점수마다 등급이 올라가는 것을 구현하기 위해 필요한 필드
+    score = models.IntegerField(default=0)
+    grade = models.CharField(
+        max_length=20,
+        choices=GradeChoices.choices,
+        default=GradeChoices.BRONZE,
+    )
+    birth = models.DateField(null=True, blank=True)
+    last_login = models.DateTimeField(null=True, blank=True)
+    last_sale = models.DateTimeField(null=True, blank=True)
+    login_count = models.IntegerField(default=0)
+    sale_count = models.IntegerField(default=0)
+    sale_amount = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
-        # is_new는 현재 인스턴스가 새로 생성되는 것인지 아닌지를 판단하는 변수
-        # 새로 생성되는 것이라면 True, 아니라면 False
-        # 새로 생성되는 것이라면 Influencer 인스턴스를 생성
-        # 이 때 args, kwargs는 save 메서드에 전달되는 인자들
         is_new = self._state.adding
         super().save(*args, **kwargs)
-        if is_new and self.role == User.RoleKindChoices.INFLUENCER:
-            influencer = Influencer.objects.create(user=self)
-            hashids = Hashids(salt=salt, min_length=6)
-            influencer.influencer_code = hashids.encode(influencer.pk)
-            influencer.save()
-        if is_new and self.role == User.RoleKindChoices.BRAND:
-            brand = Brand.objects.create(user=self)
-            brand.save()
+        if is_new:
+            self._create_role_specific_instance()
+
+    def _create_role_specific_instance(self):
+        if self.role == User.RoleKindChoices.INFLUENCER:
+            self._create_influencer_instance()
+        elif self.role == User.RoleKindChoices.BRAND:
+            self._create_brand_instance()
+
+    def _create_influencer_instance(self):
+        influencer = Influencer.objects.create(user=self)
+        hashid_handler = HashidHandler()
+        influencer.influencer_code = hashid_handler.encode_hash(influencer.pk)
+        influencer.save()
+
+    def _create_brand_instance(self):
+        brand = Brand.objects.create(user=self)
+        brand.save()
 
 
 class UserAddress(CommonModel):
@@ -94,7 +109,9 @@ class Influencer(models.Model):
         through="InfluencerPosting",
         related_name="influencers",
     )
-
+    account_number = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    bank_name = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    account_holder = models.CharField(max_length=100, unique=True, null=True, blank=True)
     influencer_code = models.CharField(max_length=100, unique=True, null=True, blank=True)
 
     def __str__(self):
@@ -128,8 +145,11 @@ class Brand(CommonModel):
         related_name="brands",
         limit_choices_to={"role": "brand"},
     )
-
+    approved = models.BooleanField(default=False)
     name = models.CharField(max_length=100, unique=True)
+    bank_name = models.CharField(max_length=100, unique=True)
+    acount_number = models.CharField(max_length=100, unique=True)
+    account_holder = models.CharField(max_length=100, unique=True)
     brand_imageURL = models.ImageField(upload_to="brand_logo", blank=True)
     description = models.TextField(blank=True)
     # 카테고리에서 FK로 받아온다.
@@ -142,3 +162,20 @@ class Brand(CommonModel):
 
     def __str__(self):
         return self.name
+
+
+class Business(CommonModel):
+    class GradeChoices(models.TextChoices):
+        BRONZE = "bronze", "bronze"
+        SILVER = "silver", "silver"
+        GOLD = "gold", "gold"
+
+    company_name = models.CharField(max_length=100, unique=True)
+    fax_number = models.CharField(max_length=100, unique=True)
+    phone_number = models.CharField(max_length=100, unique=True)
+    business_number = models.CharField(max_length=100, unique=True)
+    bank_name = models.CharField(max_length=100, unique=True)
+    acount_number = models.CharField(max_length=100, unique=True)
+    account_holder = models.CharField(max_length=100, unique=True)
+    service = models.CharField(max_length=100, unique=True)
+    grade = models.TextChoices(max_length=20, choices=GradeChoices.choices)

@@ -16,7 +16,7 @@ from .serializers import LikeSerializer, CartSerializer, CartItemSerializer
 
 
 class CartDetail(APIView):
-    def get_object(self, pk):
+    def get_cart(self, pk):
         try:
             return Cart.objects.get(pk=pk)
         except Cart.DoesNotExist:
@@ -35,7 +35,7 @@ class CartDetail(APIView):
             return None
 
     def get(self, request, pk):
-        cart = self.get_object(pk)
+        cart = self.get_cart(pk)
         serializer = CartSerializer(cart)
         return Response(serializer.data)
 
@@ -43,15 +43,16 @@ class CartDetail(APIView):
     # user는 request.user를 통해 가져옵니다.
     # 카트에 상품을 추가할 때, 카트가 없으면 새로 만들어줍니다.
     def post(self, request, pk):
-        cart = self.get_object(pk)
+        cart = self.get_cart(pk)
         quantity = request.data["quantity"]
         # reuqest data에서 referral_id가 있으면 int형으로 referral_id를 가져오고 없으면 None을 가져옵니다.
         product_post = self.get_product_post(request.data.get("product_post"))
-        cart_item = self.get_cart_item(cart, product_post)
-        if cart_item.exists():
-            cart_item = cart_item.get()
-            cart_item.quantity += int(quantity)
-            cart_item.save()
+        # self.get_cart_item메서드에 cart와 product_post를 전달하여 cartitem중 같은 cart와 product_post를 가진 cartitem을 가져옵니다.
+        if cart.cart_items.filter(product_post=product_post).exists():
+            cart_item = self.get_cart_item(cart, product_post)
+            if cart_item is not None:
+                cart_item.quantity += int(quantity)
+                cart_item.save()
             serializer = CartSerializer(cart)
             return Response(serializer.data)
         else:
@@ -68,9 +69,17 @@ class CartDetail(APIView):
     # 상품의 갯수를 변경할수 있습니다.
     # user는 request.user를 통해 가져옵니다.
 
+    # put 메서드는 전체 데이터를 수정할 때 사용합니다.
+
 
 class CartItemDetail(APIView):
     permission_classes = [IsAuthenticated]
+
+    def get_cart(self, pk):
+        try:
+            return Cart.objects.get(pk=pk)
+        except Cart.DoesNotExist:
+            return Cart.objects.create(pk=pk)
 
     def get_cart_item(self, pk):
         try:
@@ -85,30 +94,22 @@ class CartItemDetail(APIView):
 
     def put(self, request, cart_item_pk):
         cart_item = self.get_cart_item(cart_item_pk)
-        quantity = request.data["quantity"]
-        # referral 은 request.data에서 가져옵니다.
-        # request.data에 referral이 없으면 None을 가져옵니다.
-        # self.get_referral메서드에 pk를 int로 전달합니다.
-        # 이 줄에서는 CartItem 객체를 가져오거나 생성합니다.
-        # get_or_create 메서드는 주어진 인수와 일치하는 객체를
-        # 데이터베이스에서 찾습니다.
-        # 만약 찾을 수 있다면 그 객체를 반환하고 created 값은 False가 됩니다.
-        # 만약 찾을 수 없다면 새로운 객체를 생성하고 created 값은 True가 됩니다.
-        # created 값이 False인 경우, 즉 CartItem 이 존재하는 경우.
-        cart_item.quantity = int(quantity)
-        cart_item.save()
+        if cart_item is not None:
+            quantity = request.data["quantity"]
+            cart_item.quantity = int(quantity)
+            cart_item.save()
         serializer = CartItemSerializer(cart_item)
         return Response(serializer.data)
 
     def delete(self, request, pk):
-        cart = self.get_object(pk)
+        cart = self.get_cart(pk)
         cart_item = CartItem.objects.get(pk=pk)
         cart_item.delete()
         serializer = CartItemSerializer(cart)
         return Response(serializer.data)
 
 
-class LikeDetail(APIView):
+class LikeList(APIView):
     permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
