@@ -11,7 +11,6 @@ class ProductAdmin(admin.ModelAdmin):
         "original_price",
         "stock_quantity",
         "description",
-        "imageURL",
         "is_deleted",
         "weight",
         "commission",

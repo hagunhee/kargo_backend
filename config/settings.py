@@ -38,6 +38,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "corsheaders",
+    "strawberry.django",
 ]
 CUSTOM_APPS = [
     "common.apps.CommonConfig",
@@ -49,6 +50,8 @@ CUSTOM_APPS = [
     "carts.apps.CartsConfig",
     "coupons.apps.CouponsConfig",
     "notifications.apps.NotificationsConfig",
+    "shipments.apps.ShipmentsConfig",
+    "medias.apps.MediasConfig",
 ]
 
 SYSTEM_APPS = [

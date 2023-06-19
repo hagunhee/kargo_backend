@@ -87,14 +87,25 @@ class UserAddress(CommonModel):
         on_delete=models.CASCADE,
         related_name="user_addresses",
     )
-    address = models.CharField(max_length=100)
-    address_detail = models.CharField(max_length=100)
-    zipcode = models.CharField(max_length=10)
-    phone_number = models.CharField(max_length=20)
+    shippingTitle = models.CharField(max_length=100)
+    shippingCountryCode = models.CharField(max_length=100)
+    shippingPhonePrefix = models.CharField(max_length=100)
+    shippingPhone = models.CharField(max_length=100)
+    shippingZipcode = models.CharField(max_length=100)
+    shippingCountry = models.CharField(max_length=100)
+    shippingCity = models.CharField(max_length=100)
+    shippingState = models.CharField(max_length=100)
+    shippingAddress = models.CharField(max_length=100)
+    shippingAddressSub = models.CharField(max_length=100)
     is_default = models.BooleanField(default=False)
 
 
 class Influencer(models.Model):
+    class FeeGradeChoices(models.IntegerChoices):
+        BRONZE = 10
+        SILVER = 20
+        GOLD = 30
+
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
@@ -109,10 +120,17 @@ class Influencer(models.Model):
         through="InfluencerPosting",
         related_name="influencers",
     )
+    fee_grade = models.IntegerField(
+        choices=FeeGradeChoices.choices,
+        default=FeeGradeChoices.BRONZE,
+    )
     account_number = models.CharField(max_length=100, unique=True, null=True, blank=True)
     bank_name = models.CharField(max_length=100, unique=True, null=True, blank=True)
     account_holder = models.CharField(max_length=100, unique=True, null=True, blank=True)
     influencer_code = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    is_approved = models.BooleanField(default=False)
+    sell_count = models.IntegerField(default=0)
+    sell_amount = models.IntegerField(default=0)
 
     def __str__(self):
         return self.shop_name
@@ -137,6 +155,9 @@ class InfluencerPosting(CommonModel):
     videoURL = models.URLField(max_length=200, blank=True)
 
 
+# 해당 인플루언서가 얼마만큼의
+
+
 class Brand(CommonModel):
     ##유저 아이디를 FK로 받아온다.
     user = models.OneToOneField(
@@ -145,7 +166,7 @@ class Brand(CommonModel):
         related_name="brands",
         limit_choices_to={"role": "brand"},
     )
-    approved = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False)
     name = models.CharField(max_length=100, unique=True)
     bank_name = models.CharField(max_length=100, unique=True)
     acount_number = models.CharField(max_length=100, unique=True)
@@ -172,10 +193,48 @@ class Business(CommonModel):
 
     company_name = models.CharField(max_length=100, unique=True)
     fax_number = models.CharField(max_length=100, unique=True)
-    phone_number = models.CharField(max_length=100, unique=True)
+    contact_number = models.CharField(max_length=100, unique=True)
+    # 사업자 번호
     business_number = models.CharField(max_length=100, unique=True)
     bank_name = models.CharField(max_length=100, unique=True)
     acount_number = models.CharField(max_length=100, unique=True)
     account_holder = models.CharField(max_length=100, unique=True)
     service = models.CharField(max_length=100, unique=True)
-    grade = models.TextChoices(max_length=20, choices=GradeChoices.choices)
+    grade = models.CharField(max_length=20, choices=GradeChoices.choices)
+    is_approved = models.BooleanField(default=False)
+
+
+class BusinessQna(CommonModel):
+    business = models.ForeignKey("users.Business", on_delete=models.CASCADE, related_name="qnas")
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    # Sent, Delivered, Failed, Clicked etc.
+    status = models.CharField(max_length=20)
+    # 읽었는지 확인하며 시간을 기록한다.
+    is_deleted = models.BooleanField(default=False)
+    # 메세지를 불러오며 읽었는지 확인한다.
+    answer_manager = models.ForeignKey(
+        "users.User", on_delete=models.CASCADE, related_name="businessqna_answer_manager"
+    )
+
+    def __str__(self):
+        pass
+
+
+class UserQna(CommonModel):
+    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="qnas")
+    title = models.CharField(max_length=200)
+    subject = models.CharField(max_length=200)
+    content = models.TextField()
+    imgURL = models.URLField(null=True, blank=True)
+    # Sent, Delivered, Failed, Clicked etc.
+    status = models.CharField(max_length=20)
+    # 읽었는지 확인하며 시간을 기록한다.
+    is_deleted = models.BooleanField(default=False)
+    # 메세지를 불러오며 읽었는지 확인한다.
+    answer_manager = models.ForeignKey(
+        "users.User", on_delete=models.CASCADE, related_name="userqna_answer_manager"
+    )
+
+    def __str__(self):
+        pass

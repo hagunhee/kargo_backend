@@ -7,6 +7,7 @@ from common.models import CommonModel
 class Category(models.Model):
     name = models.CharField(max_length=255)
     parent_category = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True)
+    imageURL = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -14,6 +15,8 @@ class Category(models.Model):
     class Meta:
         verbose_name_plural = "Categories"
 
+
 class ExchangeRate(CommonModel):
-    #국가별 환율을 저장하는 테이블
-    cu        
+    # 국가별 환율을 저장하는 테이블 bigdecimalfield를 사용한다.
+    country = models.CharField(max_length=255)
+    exchange_rate = models.DecimalField(max_digits=20, decimal_places=10)

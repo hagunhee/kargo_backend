@@ -6,34 +6,34 @@ from .models import Order, GroupPurchase
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
         "user",
-        "product",
-        "quantity",
-        "order_price",
         "is_deleted",
     )
 
-    list_filter = ("user", "product")
-    search_fields = (
-        "user",
-        "product",
-    )
+    list_filter = ("user",)
+    search_fields = ("user",)
 
 
 @admin.register(GroupPurchase)
 class GroupPurchaseAdmin(admin.ModelAdmin):
     list_display = (
-        "user",
-        "product",
+        "display_users",
+        "product_post",
         "required_participants",
         "end_time",
+        "is_closed",
         "is_deleted",
     )
 
+    def display_users(self, obj):
+        return obj.users.count()
+
+    display_users.short_description = "Users Count"
+
     list_filter = (
-        "user",
-        "product",
+        "users",
+        "product_post",
     )
     search_fields = (
-        "user",
-        "product",
+        "users",
+        "product_post",
     )

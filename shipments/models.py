@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class Shipments(models.Model):
+class Shipment(models.Model):
     company = models.CharField(max_length=100, blank=True, null=True)
     country = models.CharField(max_length=100, blank=True, null=True)
     discount_percentage = models.PositiveIntegerField()

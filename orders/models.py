@@ -17,11 +17,12 @@ class OrderItem(CommonModel):
         REFUNDED = 11, "Refunded"
 
     order = models.ForeignKey("orders.Order", on_delete=models.CASCADE, related_name="order_items")
-    pre_order_item = models.ForeignKey(
-        "products.Product", on_delete=models.CASCADE, related_name="order_items"
+    pre_order_item = models.OneToOneField(
+        "carts.PreOrderItem", on_delete=models.SET_NULL, related_name="order_item", null=True
     )
     scmNo = models.CharField(max_length=100, blank=True, null=True)
     status = models.IntegerField(choices=Status.choices, default=Status.PAID)
+    refund_amount = models.PositiveIntegerField(default=0)
 
     is_deleted = models.BooleanField(default=False)
 
@@ -32,18 +33,22 @@ class OrderItem(CommonModel):
         pass
 
     def __str__(self):
-        return f"{self.order.user.username} orders {self.product.name}"
+        return f"{self.order.user.username} orders {self.pre_order_item.name}"
 
 
 class Order(CommonModel):
+    class Status(models.IntegerChoices):
+        PAID = 1, "Paid"
+        READY = 2, "Ready"
+        SHIPPED = 3, "Shipped"
+        DELIVERED = 4, "Delivered"
+        PAYMENT_COMPLETE = 5, "Payment Complete"
+        # 1,2,3,4,5의 플로우에서 벗어날경우 상세보기에서 표현해야함
+        ORDER_DETAIL = 6, "Order Detail"
+
     user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="orders")
-    pre_order = models.ForeignKey(
-        "carts.PreOrder",
-        on_delete=models.CASCADE,
-        related_name="orders",
-        null=True,
-        blank=True,
-        unique=True,
+    pre_order = models.OneToOneField(
+        "carts.PreOrder", on_delete=models.SET_NULL, related_name="order", null=True
     )
     is_deleted = models.BooleanField(default=False)
 
@@ -63,10 +68,13 @@ class OrderClaimHandle(CommonModel):
     user = models.ForeignKey(
         "users.User", on_delete=models.CASCADE, related_name="order_claim_handles"
     )
-    order = models.ForeignKey(
-        "orders.Order", on_delete=models.CASCADE, related_name="order_claim_handles"
-    )
 
+    orderitems = models.ManyToManyField(
+        "orders.OrderItem", related_name="order_claim_handles", blank=True
+    )
+    # 클레임 발생과 동시에 금액을 넘겨받아야 한다.
+    # 클레임이 완료되면 오더에 금액을 넘겨줘야 한다.
+    claim_amount = models.PositiveIntegerField()
     claim_reason = models.CharField(max_length=100, blank=True, null=True)
     claim_detail = models.TextField(blank=True, null=True)
     claim_answer = models.TextField(blank=True, null=True)
@@ -83,13 +91,7 @@ class OrderClaimHandle(CommonModel):
     claim_account_bank = models.CharField(max_length=100, blank=True, null=True)
     claim_account_bank_code = models.CharField(max_length=100, blank=True, null=True)
     claim_date = models.DateTimeField()
-    claim_handle = models.ForeignKey(
-        "orders.OrderClaimHandle",
-        on_delete=models.SET_NULL,
-        related_name="order_items",
-        null=True,
-        blank=True,
-    )
+
     # 반품건에 대한 송장번호
     return_scmNo = models.CharField(max_length=100, blank=True, null=True)
     is_approved = models.BooleanField(default=False)
@@ -99,20 +101,56 @@ class OrderClaimHandle(CommonModel):
     def give_mileage(self):
         pass
 
-    def __str__(self):
-        return f"{self.user.username} orders {self.product.name}"
-
 
 class GroupPurchase(CommonModel):
-    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="group_purchases")
-    product = models.ForeignKey(
-        "products.Product", on_delete=models.CASCADE, related_name="group_purchases_by"
+    users = models.ManyToManyField(
+        "users.User", related_name="group_purchases", through="GroupPurchaseUser"
     )
-    required_participants = (
-        models.PositiveIntegerField()
-    )  # 그룹퍼체이스 id를 검색하여 그룹퍼체이스에 참여한 유저들을 확인할 수 있다.
+
+    product_post = models.ForeignKey(
+        "products.ProductPost",
+        on_delete=models.CASCADE,
+        related_name="group_purchases",
+        default=None,
+    )
+    required_participants = models.PositiveIntegerField()
     end_time = models.DateTimeField()
+    is_closed = models.BooleanField(default=False)
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.user.username} group_purchases {self.product.name}"
+        return f"{self.first_user.username} group_purchases {self.product_post.product.name}"
+
+    @property
+    def first_user(self):
+        return self.users.order_by("grouppurchaseuser__created_at").first()
+
+    @property
+    def is_participant_goal_reached(self):
+        return self.users.count() >= self.required_participants
+
+    def close_group_purchase(self):
+        """
+        참여한 사용자의 수와 필요한 참여자의 수를 비교하여
+        필요한 참여자의 수에 도달하면 그룹 구매를 마감합니다.
+        """
+        if self.users.count() >= self.required_participants:
+            self.is_closed = True
+            self.save()
+
+    def save(self, *args, **kwargs):
+        """
+        객체가 저장될 때마다 close_group_purchase 메서드를 호출하여
+        필요한 참여자 수에 도달했는지 확인하고, 도달했다면 그룹 구매를 마감합니다.
+        """
+        self.close_group_purchase()
+        super().save(*args, **kwargs)
+
+
+class GroupPurchaseUser(models.Model):
+    user = models.ForeignKey("users.User", on_delete=models.CASCADE)
+    group_purchase = models.ForeignKey("orders.GroupPurchase", on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "group_purchase")

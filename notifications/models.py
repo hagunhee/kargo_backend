@@ -35,20 +35,3 @@ class Notice(CommonModel):
 
     def __str__(self):
         pass
-
-
-class Qna(CommonModel):
-    user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="qnas")
-    title = models.CharField(max_length=200)
-    content = models.TextField()
-    # Sent, Delivered, Failed, Clicked etc.
-    status = models.CharField(max_length=20)
-    # 읽었는지 확인하며 시간을 기록한다.
-    is_deleted = models.BooleanField(default=False)
-    # 메세지를 불러오며 읽었는지 확인한다.
-    answer_manager = models.ForeignKey(
-        "users.User", on_delete=models.CASCADE, related_name="answer_manager"
-    )
-
-    def __str__(self):
-        pass

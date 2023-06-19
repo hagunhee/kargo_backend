@@ -45,7 +45,7 @@ class Photo(CommonModel):
         related_name="photos",
     )
     orderclaimhandle = models.ForeignKey(
-        "orderclaims.OrderClaimHandle",
+        "orders.OrderClaimHandle",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -60,6 +60,13 @@ class Photo(CommonModel):
     )
     notice = models.ForeignKey(
         "notifications.Notice",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="photos",
+    )
+    userQnA = models.ForeignKey(
+        "users.UserQnA",
         on_delete=models.CASCADE,
         null=True,
         blank=True,

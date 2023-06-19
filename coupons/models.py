@@ -11,11 +11,28 @@ class Coupon(CommonModel):
         ALL = ("all", "All Items")
         BRAND = ("brand", "Specific Brands")
         PRODUCT = ("product", "Specific ProductPosts")
+        CATEGORY = ("category", "Specific Category")
+        INFLUENCER = ("influencer", "Specific Influencer")
+        GROUP = ("group", "Specific Group")
 
     name = models.CharField(max_length=255, default="", null=True, blank=True)
     user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="coupons")
     role = models.CharField(
         choices=CouponTypeChoices.choices, max_length=50, default=CouponTypeChoices.ALL
+    )
+    influencer = models.ForeignKey(
+        "users.User",
+        on_delete=models.CASCADE,
+        related_name="influencer_coupons",
+        null=True,
+        blank=True,
+    )
+    category = models.ForeignKey(
+        "categories.Category",
+        on_delete=models.CASCADE,
+        related_name="coupons",
+        null=True,
+        blank=True,
     )
     brands = models.ManyToManyField("users.Brand", blank=True)
     product_posts = models.ManyToManyField("products.ProductPost", blank=True)

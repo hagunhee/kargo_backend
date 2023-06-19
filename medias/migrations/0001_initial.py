@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="Notice",
+            name="Photo",
             fields=[
                 (
                     "id",
@@ -23,18 +23,18 @@ class Migration(migrations.Migration):
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
-                ("title", models.CharField(max_length=200)),
-                ("content", models.TextField()),
-                ("valid_until", models.DateTimeField()),
-                ("status", models.CharField(max_length=20)),
-                ("is_deleted", models.BooleanField(default=False)),
+                ("file", models.URLField()),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
             ],
             options={
                 "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name="Notification",
+            name="Video",
             fields=[
                 (
                     "id",
@@ -47,11 +47,11 @@ class Migration(migrations.Migration):
                 ),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),
-                ("title", models.CharField(max_length=200)),
-                ("message", models.TextField()),
-                ("timestamp", models.DateTimeField(auto_now_add=True)),
-                ("status", models.CharField(max_length=20)),
-                ("read_at", models.DateTimeField(blank=True, null=True)),
+                ("file", models.URLField()),
+                (
+                    "description",
+                    models.CharField(blank=True, max_length=255, null=True),
+                ),
             ],
             options={
                 "abstract": False,

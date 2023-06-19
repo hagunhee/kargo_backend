@@ -34,8 +34,8 @@ class Product(CommonModel):
 
 class ProductPost(CommonModel):
     class EventType(models.TextChoices):
-        NORMAL = "NORMAL", "일반"
-        EVENT = "EVENT", "이벤트"
+        NORMAL = "NORMAL", "normal"
+        EVENT = "EVENT", "event"
 
     name = models.CharField(max_length=255, default="")
     # product와 연결하는데 manytomany로 연결한다.
@@ -51,7 +51,9 @@ class ProductPost(CommonModel):
     visibility = models.BooleanField(default=False)
     publish_time = models.DateTimeField()
     onsale = models.BooleanField(default=False)
-    event_type = models.TextChoices(choices=EventType.choices)
+    event_type = models.CharField(
+        default=EventType.NORMAL, choices=EventType.choices, max_length=30
+    )
     event_start_date = models.DateTimeField(blank=True, null=True)
     event_end_date = models.DateTimeField(blank=True, null=True)
     event_discount = models.PositiveIntegerField(blank=True, null=True)
@@ -60,6 +62,7 @@ class ProductPost(CommonModel):
     cart_cnt = models.PositiveIntegerField(default=0)
     order_cnt = models.PositiveIntegerField(default=0)
     seo_data = models.TextField(blank=True, null=True)
+    grouppurchase_cnt = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.product.name
