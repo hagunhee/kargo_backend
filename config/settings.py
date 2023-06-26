@@ -70,6 +70,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -159,3 +160,8 @@ REST_FRAMEWORK = {
         "config.authentication.JWTAuthentication",
     ]
 }
+
+CORS_ALLOW_ALL_ORIGINS = True  # 모든 출처를 허용하거나
+CORS_ALLOWED_ORIGINS = [  # 특정 출처만 허용할 수 있습니다.
+    "http://localhost:3000",
+]

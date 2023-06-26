@@ -1,11 +1,12 @@
 from utils import HashidHandler
 from django.db import models
+from django.apps import apps
 from django.contrib.auth.models import AbstractUser  # Custom User Model
 from common.models import CommonModel
 from products.models import ProductPost
 
 
-class User(AbstractUser):
+class User(CommonModel, AbstractUser):
     class GradeChoices(models.TextChoices):
         BRONZE = ("bronze", "Bronze")
         SILVER = ("silver", "Silver")
@@ -63,6 +64,7 @@ class User(AbstractUser):
         super().save(*args, **kwargs)
         if is_new:
             self._create_role_specific_instance()
+            self._create_cart_instance()
 
     def _create_role_specific_instance(self):
         if self.role == User.RoleKindChoices.INFLUENCER:
@@ -79,6 +81,10 @@ class User(AbstractUser):
     def _create_brand_instance(self):
         brand = Brand.objects.create(user=self)
         brand.save()
+
+    def _create_cart_instance(self):
+        cart = apps.get_model("carts", "Cart").objects.create(user=self)
+        cart.save()
 
 
 class UserAddress(CommonModel):
@@ -100,7 +106,7 @@ class UserAddress(CommonModel):
     is_default = models.BooleanField(default=False)
 
 
-class Influencer(models.Model):
+class Influencer(CommonModel):
     class FeeGradeChoices(models.IntegerChoices):
         BRONZE = 10
         SILVER = 20
@@ -151,7 +157,7 @@ class InfluencerPosting(CommonModel):
     is_posted = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
     description = models.TextField(null=True, blank=True)
-    imageURL = models.URLField(max_length=200, blank=True)
+    imgURL = models.URLField(max_length=200, blank=True)
     videoURL = models.URLField(max_length=200, blank=True)
 
 
@@ -168,11 +174,11 @@ class Brand(CommonModel):
     )
     is_approved = models.BooleanField(default=False)
     name = models.CharField(max_length=100, unique=True)
-    bank_name = models.CharField(max_length=100, unique=True)
-    acount_number = models.CharField(max_length=100, unique=True)
-    account_holder = models.CharField(max_length=100, unique=True)
-    brand_imageURL = models.ImageField(upload_to="brand_logo", blank=True)
-    description = models.TextField(blank=True)
+    bank_name = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    acount_number = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    account_holder = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    brand_imageURL = models.ImageField(upload_to="brand_logo", blank=True, null=True)
+    description = models.TextField(null=True, blank=True)
     # 카테고리에서 FK로 받아온다.
     category = models.ForeignKey(
         "categories.Category",
@@ -192,13 +198,14 @@ class Business(CommonModel):
         GOLD = "gold", "gold"
 
     company_name = models.CharField(max_length=100, unique=True)
-    fax_number = models.CharField(max_length=100, unique=True)
+    fax_number = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    contact_name = models.CharField(max_length=100, unique=True)
     contact_number = models.CharField(max_length=100, unique=True)
     # 사업자 번호
-    business_number = models.CharField(max_length=100, unique=True)
-    bank_name = models.CharField(max_length=100, unique=True)
-    acount_number = models.CharField(max_length=100, unique=True)
-    account_holder = models.CharField(max_length=100, unique=True)
+    business_number = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    bank_name = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    acount_number = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    account_holder = models.CharField(max_length=100, unique=True, null=True, blank=True)
     service = models.CharField(max_length=100, unique=True)
     grade = models.CharField(max_length=20, choices=GradeChoices.choices)
     is_approved = models.BooleanField(default=False)

@@ -69,7 +69,7 @@ class OrderClaimHandle(CommonModel):
         "users.User", on_delete=models.CASCADE, related_name="order_claim_handles"
     )
 
-    orderitems = models.ManyToManyField(
+    order_items = models.ManyToManyField(
         "orders.OrderItem", related_name="order_claim_handles", blank=True
     )
     # 클레임 발생과 동시에 금액을 넘겨받아야 한다.

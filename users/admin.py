@@ -29,6 +29,7 @@ class UserAdmin(admin.ModelAdmin):
             "User Profile",
             {
                 "fields": (
+                    "pk",
                     "role",
                     "username",
                     "email",

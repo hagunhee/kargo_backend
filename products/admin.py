@@ -5,6 +5,7 @@ from .models import Product, ProductPost, Category
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
+        "pk",
         "name",
         "brand",
         "category",
@@ -25,6 +26,7 @@ class ProductAdmin(admin.ModelAdmin):
 @admin.register(ProductPost)
 class ProductPostAdmin(admin.ModelAdmin):
     list_display = (
+        "pk",
         "name",
         "display_product",
         "display_weights",

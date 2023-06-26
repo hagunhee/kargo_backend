@@ -20,13 +20,14 @@ class Product(CommonModel):
     name = models.CharField(max_length=255)
     original_price = models.PositiveIntegerField()
     stock_quantity = models.PositiveIntegerField()
-    sales_quantity = models.PositiveIntegerField(default=0)
+    sales_quantity = models.PositiveIntegerField(default=0, blank=True, null=True)
+    sale_price = models.PositiveIntegerField()
     description = models.TextField(blank=True, default="")
     imageurl = models.ImageField(upload_to="product_images", blank=True, null=True)
     is_deleted = models.BooleanField(default=False)
     weight = models.PositiveIntegerField(default=0)
     ##레퍼럴에 대한 커미션을 설정한다.
-    commission = models.PositiveIntegerField(default=0)
+    commission = models.PositiveIntegerField(default=0, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -48,32 +49,29 @@ class ProductPost(CommonModel):
     price_for_2 = models.PositiveIntegerField(null=True, blank=True)
     price_for_10 = models.PositiveIntegerField(null=True, blank=True)
     price_for_50 = models.PositiveIntegerField(null=True, blank=True)
-    visibility = models.BooleanField(default=False)
-    publish_time = models.DateTimeField()
-    onsale = models.BooleanField(default=False)
+    visibility = models.BooleanField(default=False, null=True, blank=True)
+    publish_time = models.DateTimeField(null=True, blank=True)
+    onsale = models.BooleanField(default=False, null=True, blank=True)
     event_type = models.CharField(
         default=EventType.NORMAL, choices=EventType.choices, max_length=30
     )
     event_start_date = models.DateTimeField(blank=True, null=True)
     event_end_date = models.DateTimeField(blank=True, null=True)
     event_discount = models.PositiveIntegerField(blank=True, null=True)
-    is_deleted = models.BooleanField(default=False)
-    hit = models.PositiveIntegerField(default=0)
-    cart_cnt = models.PositiveIntegerField(default=0)
-    order_cnt = models.PositiveIntegerField(default=0)
+    is_deleted = models.BooleanField(default=False, null=True, blank=True)
+    hit = models.PositiveIntegerField(default=0, null=True, blank=True)
+    cart_cnt = models.PositiveIntegerField(default=0, null=True, blank=True)
+    order_cnt = models.PositiveIntegerField(default=0, null=True, blank=True)
     seo_data = models.TextField(blank=True, null=True)
-    grouppurchase_cnt = models.PositiveIntegerField(default=0)
+    grouppurchase_cnt = models.PositiveIntegerField(default=0, null=True, blank=True)
 
     def __str__(self):
-        return self.product.name
+        return self.name
 
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
     parent_category = models.ForeignKey("self", on_delete=models.SET_NULL, null=True, blank=True)
-
-    def __str__(self):
-        return self.name
 
     class Meta:
         verbose_name_plural = "Categories"

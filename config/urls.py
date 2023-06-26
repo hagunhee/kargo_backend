@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
 from users import views
-
+from strawberry.django.views import GraphQLView
+from .schema import schema
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -9,4 +10,5 @@ urlpatterns = [
     path("likes/", include("carts.likesurls")),
     path("carts/", include("carts.urls")),
     path("influencers/", include("users.sellersurls")),
+    path("graphql", GraphQLView.as_view(schema=schema, graphiql=True)),
 ]
