@@ -18,7 +18,7 @@ class OrderItem(CommonModel):
 
     order = models.ForeignKey("orders.Order", on_delete=models.CASCADE, related_name="order_items")
     pre_order_item = models.OneToOneField(
-        "carts.PreOrderItem", on_delete=models.SET_NULL, related_name="order_item", null=True
+        "baskets.PreOrderItem", on_delete=models.SET_NULL, related_name="order_item", null=True
     )
     scmNo = models.CharField(max_length=100, blank=True, null=True)
     status = models.IntegerField(choices=Status.choices, default=Status.PAID)
@@ -48,7 +48,7 @@ class Order(CommonModel):
 
     user = models.ForeignKey("users.User", on_delete=models.CASCADE, related_name="orders")
     pre_order = models.OneToOneField(
-        "carts.PreOrder", on_delete=models.SET_NULL, related_name="order", null=True
+        "baskets.PreOrder", on_delete=models.SET_NULL, related_name="order", null=True
     )
     is_deleted = models.BooleanField(default=False)
 

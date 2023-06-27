@@ -47,7 +47,7 @@ CUSTOM_APPS = [
     "products.apps.ProductsConfig",
     "orders.apps.OrdersConfig",
     "reviews.apps.ReviewsConfig",
-    "carts.apps.CartsConfig",
+    "baskets.apps.BasketsConfig",
     "coupons.apps.CouponsConfig",
     "notifications.apps.NotificationsConfig",
     "shipments.apps.ShipmentsConfig",

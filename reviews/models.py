@@ -14,7 +14,6 @@ class Review(CommonModel):
     )
     rating = models.PositiveIntegerField()
     content = models.TextField()
-    imgurl = models.URLField(null=True, blank=True)
     is_deleted = models.BooleanField(default=False)
 
     def __str__(self):

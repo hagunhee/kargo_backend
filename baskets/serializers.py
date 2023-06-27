@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
-from .models import Cart, Like, CartItem
+from .models import Basket, Like, BasketItem
 from users.models import User
 from products.serializers import ProductPostSerializer
 
@@ -19,24 +19,24 @@ class LikeSerializer(ModelSerializer):
         )
 
 
-class CartItemSerializer(ModelSerializer):
+class BasketItemSerializer(ModelSerializer):
     product_post = ProductPostSerializer(
         read_only=True,
     )
 
     class Meta:
-        model = CartItem
+        model = BasketItem
         fields = (
             "pk",
-            "cart",
+            "basket",
             "product_post",
             "quantity",
         )
 
 
-class CartSerializer(ModelSerializer):
-    cart_items = CartItemSerializer(read_only=True, many=True)
+class BasketSerializer(ModelSerializer):
+    basket_items = BasketItemSerializer(read_only=True, many=True)
 
     class Meta:
-        model = Cart
-        fields = ["user", "cart_items"]
+        model = Basket
+        fields = ["user", "basket_items"]

@@ -24,12 +24,13 @@ class BrandInline(admin.StackedInline):
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
+    list_display = ("pk", "username", "email", "first_name", "last_name", "date_joined", "last_login", "role")  # 'id' 또는 'pk'를 추가
+
     fieldsets = (
         (
             "User Profile",
             {
                 "fields": (
-                    "pk",
                     "role",
                     "username",
                     "email",

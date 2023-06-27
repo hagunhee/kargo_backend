@@ -6,10 +6,10 @@ import typing
 from users.types import UserType
 
 
-@strawberry.django.type(models.Cart)
-class CartType:
+@strawberry.django.type(models.Basket)
+class BasketType:
     user: "UserType"
-    cart_items: typing.List["CartItemType"]
+    basket_items: typing.List["BasketItemType"]
     shipments: auto
     total_weight: auto
     influencer_code: auto
@@ -22,9 +22,9 @@ class CartType:
     free_shipping_FI: auto
 
 
-@strawberry.django.type(models.CartItem)
-class CartItemType:
-    cart: auto
+@strawberry.django.type(models.BasketItem)
+class BasketItemType:
+    basket: auto
     product_post: "ProductPostType"
     quantity: auto
     coupon: auto

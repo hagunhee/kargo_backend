@@ -20,6 +20,7 @@ class User(CommonModel, AbstractUser):
         BUISNESS = ("buisness", "Buisness")
         BRAND = ("brand", "Brand")
 
+
     username = models.CharField(max_length=50, default="", unique=True)
     first_name = models.CharField(
         max_length=50,
@@ -64,7 +65,7 @@ class User(CommonModel, AbstractUser):
         super().save(*args, **kwargs)
         if is_new:
             self._create_role_specific_instance()
-            self._create_cart_instance()
+            self._create_basket_instance()
 
     def _create_role_specific_instance(self):
         if self.role == User.RoleKindChoices.INFLUENCER:
@@ -82,9 +83,9 @@ class User(CommonModel, AbstractUser):
         brand = Brand.objects.create(user=self)
         brand.save()
 
-    def _create_cart_instance(self):
-        cart = apps.get_model("carts", "Cart").objects.create(user=self)
-        cart.save()
+    def _create_basket_instance(self):
+        basket = apps.get_model("baskets", "Basket").objects.create(user=self)
+        basket.save()
 
 
 class UserAddress(CommonModel):
@@ -119,7 +120,6 @@ class Influencer(CommonModel):
         limit_choices_to={"role": "influencer"},
     )
     shop_name = models.CharField(max_length=100, unique=True)
-    profile_imageURL = models.URLField(max_length=200, blank=True)
     # influencerPosting을 통해 연결된 포스트들을 가져올 수 있다.
     product_posts = models.ManyToManyField(
         ProductPost,
@@ -157,8 +157,6 @@ class InfluencerPosting(CommonModel):
     is_posted = models.BooleanField(default=True)
     is_deleted = models.BooleanField(default=False)
     description = models.TextField(null=True, blank=True)
-    imgURL = models.URLField(max_length=200, blank=True)
-    videoURL = models.URLField(max_length=200, blank=True)
 
 
 # 해당 인플루언서가 얼마만큼의
@@ -177,7 +175,6 @@ class Brand(CommonModel):
     bank_name = models.CharField(max_length=100, unique=True, null=True, blank=True)
     acount_number = models.CharField(max_length=100, unique=True, null=True, blank=True)
     account_holder = models.CharField(max_length=100, unique=True, null=True, blank=True)
-    brand_imageURL = models.ImageField(upload_to="brand_logo", blank=True, null=True)
     description = models.TextField(null=True, blank=True)
     # 카테고리에서 FK로 받아온다.
     category = models.ForeignKey(
@@ -233,7 +230,6 @@ class UserQna(CommonModel):
     title = models.CharField(max_length=200)
     subject = models.CharField(max_length=200)
     content = models.TextField()
-    imgURL = models.URLField(null=True, blank=True)
     # Sent, Delivered, Failed, Clicked etc.
     status = models.CharField(max_length=20)
     # 읽었는지 확인하며 시간을 기록한다.

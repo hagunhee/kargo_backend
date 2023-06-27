@@ -10,17 +10,17 @@ from rest_framework.status import (
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.generics import ListAPIView, RetrieveAPIView, CreateAPIView, DestroyAPIView
 
-from .models import Like, Cart, CartItem
+from .models import Like, Basket, BasketItem
 from products.models import ProductPost
-from .serializers import LikeSerializer, CartSerializer, CartItemSerializer
+from .serializers import LikeSerializer, BasketSerializer, BasketItemSerializer
 
 
-class CartDetail(APIView):
-    def get_cart(self, pk):
+class BasketDetail(APIView):
+    def get_basket(self, pk):
         try:
-            return Cart.objects.get(pk=pk)
-        except Cart.DoesNotExist:
-            return Cart.objects.create(pk=pk)
+            return Basket.objects.get(pk=pk)
+        except Basket.DoesNotExist:
+            return Basket.objects.create(pk=pk)
 
     def get_product_post(self, pk):
         try:
@@ -28,40 +28,40 @@ class CartDetail(APIView):
         except ProductPost.DoesNotExist:
             return NotFound(detail="ProductPost does not exist")
 
-    def get_cart_item(self, cart, product_post):
+    def get_basket_item(self, basket, product_post):
         try:
-            return CartItem.objects.get(cart=cart, product_post=product_post)
-        except CartItem.DoesNotExist:
+            return BasketItem.objects.get(basket=basket, product_post=product_post)
+        except BasketItem.DoesNotExist:
             return None
 
     def get(self, request, pk):
-        cart = self.get_cart(pk)
-        serializer = CartSerializer(cart)
+        basket = self.get_basket(pk)
+        serializer = BasketSerializer(basket)
         return Response(serializer.data)
 
     # 카트에 이미 있는 상품을 추가하려고 하면, 수량만 증가시킵니다.
     # user는 request.user를 통해 가져옵니다.
     # 카트에 상품을 추가할 때, 카트가 없으면 새로 만들어줍니다.
     def post(self, request, pk):
-        cart = self.get_cart(pk)
+        basket = self.get_basket(pk)
         quantity = request.data["quantity"]
         # reuqest data에서 referral_id가 있으면 int형으로 referral_id를 가져오고 없으면 None을 가져옵니다.
         product_post = self.get_product_post(request.data.get("product_post"))
-        # self.get_cart_item메서드에 cart와 product_post를 전달하여 cartitem중 같은 cart와 product_post를 가진 cartitem을 가져옵니다.
-        if cart.cart_items.filter(product_post=product_post).exists():
-            cart_item = self.get_cart_item(cart, product_post)
-            if cart_item is not None:
-                cart_item.quantity += int(quantity)
-                cart_item.save()
-            serializer = CartSerializer(cart)
+        # self.get_basket_item메서드에 basket와 product_post를 전달하여 basketitem중 같은 basket와 product_post를 가진 basketitem을 가져옵니다.
+        if basket.basket_items.filter(product_post=product_post).exists():
+            basket_item = self.get_basket_item(basket, product_post)
+            if basket_item is not None:
+                basket_item.quantity += int(quantity)
+                basket_item.save()
+            serializer = BasketSerializer(basket)
             return Response(serializer.data)
         else:
-            cart_item = CartItem.objects.create(
-                cart=cart,
+            basket_item = BasketItem.objects.create(
+                basket=basket,
                 product_post=product_post,
                 quantity=quantity,
             )
-            serializer = CartSerializer(cart)
+            serializer = BasketSerializer(basket)
             return Response(serializer.data)
 
     # 카트에 없던 상품을 추가할 수 있으며, 동시에 partial=True를 통해
@@ -72,40 +72,40 @@ class CartDetail(APIView):
     # put 메서드는 전체 데이터를 수정할 때 사용합니다.
 
 
-class CartItemDetail(APIView):
+class BasketItemDetail(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get_cart(self, pk):
+    def get_basket(self, pk):
         try:
-            return Cart.objects.get(pk=pk)
-        except Cart.DoesNotExist:
-            return Cart.objects.create(pk=pk)
+            return Basket.objects.get(pk=pk)
+        except Basket.DoesNotExist:
+            return Basket.objects.create(pk=pk)
 
-    def get_cart_item(self, pk):
+    def get_basket_item(self, pk):
         try:
-            return CartItem.objects.get(pk=pk)
-        except CartItem.DoesNotExist:
+            return BasketItem.objects.get(pk=pk)
+        except BasketItem.DoesNotExist:
             return None
 
-    def get(self, request, cart_item_pk):
-        cart_item = self.get_cart_item(cart_item_pk)
-        serializer = CartItemSerializer(cart_item)
+    def get(self, request, basket_item_pk):
+        basket_item = self.get_basket_item(basket_item_pk)
+        serializer = BasketItemSerializer(basket_item)
         return Response(serializer.data)
 
-    def put(self, request, cart_item_pk):
-        cart_item = self.get_cart_item(cart_item_pk)
-        if cart_item is not None:
+    def put(self, request, basket_item_pk):
+        basket_item = self.get_basket_item(basket_item_pk)
+        if basket_item is not None:
             quantity = request.data["quantity"]
-            cart_item.quantity = int(quantity)
-            cart_item.save()
-        serializer = CartItemSerializer(cart_item)
+            basket_item.quantity = int(quantity)
+            basket_item.save()
+        serializer = BasketItemSerializer(basket_item)
         return Response(serializer.data)
 
     def delete(self, request, pk):
-        cart = self.get_cart(pk)
-        cart_item = CartItem.objects.get(pk=pk)
-        cart_item.delete()
-        serializer = CartItemSerializer(cart)
+        basket = self.get_basket(pk)
+        basket_item = BasketItem.objects.get(pk=pk)
+        basket_item.delete()
+        serializer = BasketItemSerializer(basket)
         return Response(serializer.data)
 
 

@@ -1,6 +1,8 @@
 import strawberry
 from strawberry import auto
 from . import models
+from medias.types import PhotoType, VideoType
+import typing
 
 
 @strawberry.django.type(models.UserAddress)
@@ -24,7 +26,6 @@ class InfluencerType:
     id: auto
     user: auto
     shop_name: auto
-    profile_imageURL: auto
     product_posts: auto
     fee_grade: auto
     account_number: auto
@@ -36,6 +37,7 @@ class InfluencerType:
     sell_amount: auto
     created_at: auto
     updated_at: auto
+    photos: typing.List[PhotoType]
 
 
 @strawberry.django.type(models.InfluencerPosting)
@@ -47,11 +49,10 @@ class InfluencerPostingType:
     is_posted: auto
     is_deleted: auto
     description: auto
-    imgURL: auto
-    videoURL: auto
     created_at: auto
     updated_at: auto
-
+    photos: typing.List[PhotoType]
+    video: "VideoType"
 
 @strawberry.django.type(models.Brand)
 class BrandType:
@@ -61,11 +62,11 @@ class BrandType:
     bank_name: auto
     acount_number: auto
     account_holder: auto
-    brand_imageURL: auto
     description: auto
     category: auto
     created_at: auto
     updated_at: auto
+    photos: typing.List[PhotoType]
 
 
 @strawberry.django.type(models.Business)
@@ -95,7 +96,9 @@ class BusinessQnaType:
     status: auto
     is_deleted: auto
     created_at: auto
-    updated_at: auto
+    updated_at: auto    
+    photos: typing.List[PhotoType]
+
 
 
 @strawberry.django.type(models.UserQna)
@@ -105,10 +108,10 @@ class UserQnaType:
     title: auto
     subject: auto
     content: auto
-    imgURL: auto
     status: auto
     is_deleted: auto
     answer_manager: auto
+    photos: typing.List[PhotoType]
 
 
 @strawberry.django.type(models.User)

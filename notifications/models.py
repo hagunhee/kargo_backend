@@ -1,6 +1,7 @@
 from django.db import models
 from common.models import CommonModel
 from django.utils import timezone
+from django.contrib.contenttypes.fields import GenericRelation
 
 
 class Notification(CommonModel):
@@ -12,6 +13,7 @@ class Notification(CommonModel):
     status = models.CharField(max_length=20)
     # 읽었는지 확인하며 시간을 기록한다.
     read_at = models.DateTimeField(blank=True, null=True)
+    photos = GenericRelation('medias.Photo')
 
     # 메세지를 불러오며 읽었는지 확인한다.
     def get_message(self):
@@ -32,6 +34,7 @@ class Notice(CommonModel):
     # 읽었는지 확인하며 시간을 기록한다.
     is_deleted = models.BooleanField(default=False)
     # 메세지를 불러오며 읽었는지 확인한다.
+    photos = GenericRelation('medias.Photo')
 
     def __str__(self):
         pass

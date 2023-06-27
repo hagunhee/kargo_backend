@@ -12,7 +12,7 @@ class ReviewAdmin(admin.ModelAdmin):
         "product_post",
         "rating",
         "content",
-        "imgurl",
+        "photos",
         "is_deleted",
     )
     list_filter = (
@@ -20,7 +20,7 @@ class ReviewAdmin(admin.ModelAdmin):
         "product_post",
         "rating",
         "content",
-        "imgurl",
+        "photos",
         "is_deleted",
     )
     search_fields = (
@@ -28,6 +28,6 @@ class ReviewAdmin(admin.ModelAdmin):
         "product_post",
         "rating",
         "content",
-        "imgurl",
+        "photos",
         "is_deleted",
     )

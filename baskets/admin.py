@@ -1,9 +1,9 @@
 from django.contrib import admin
-from .models import Cart, CartItem, Like, PreOrder, PreOrderItem
+from .models import Basket, BasketItem, Like, PreOrder, PreOrderItem
 
 
-@admin.register(Cart)
-class CartAdmin(admin.ModelAdmin):
+@admin.register(Basket)
+class BasketAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
         "user",
@@ -18,11 +18,11 @@ class LikeAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(CartItem)
-class CartItemAdmin(admin.ModelAdmin):
+@admin.register(BasketItem)
+class BasketItemAdmin(admin.ModelAdmin):
     list_display = (
         "pk",
-        "cart",
+        "basket",
         "product_post",
         "quantity",
     )

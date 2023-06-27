@@ -1,6 +1,6 @@
 from django.db import models
 from common.models import CommonModel
-
+import typing
 
 class Product(CommonModel):
     brand = models.ForeignKey(
@@ -60,7 +60,7 @@ class ProductPost(CommonModel):
     event_discount = models.PositiveIntegerField(blank=True, null=True)
     is_deleted = models.BooleanField(default=False, null=True, blank=True)
     hit = models.PositiveIntegerField(default=0, null=True, blank=True)
-    cart_cnt = models.PositiveIntegerField(default=0, null=True, blank=True)
+    basket_cnt = models.PositiveIntegerField(default=0, null=True, blank=True)
     order_cnt = models.PositiveIntegerField(default=0, null=True, blank=True)
     seo_data = models.TextField(blank=True, null=True)
     grouppurchase_cnt = models.PositiveIntegerField(default=0, null=True, blank=True)

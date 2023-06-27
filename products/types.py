@@ -1,6 +1,7 @@
 import strawberry
-from typing import List
+import typing
 from . import models
+from  medias.types import PhotoType, VideoType
 
 
 @strawberry.django.type(models.Product)
@@ -25,7 +26,7 @@ class ProductType:
 class ProductPostType:
     id: int
     name: str
-    products: List[ProductType]
+    products: typing.List[ProductType]
     price_for_1: int
     price_for_2: int
     price_for_10: int
@@ -39,11 +40,12 @@ class ProductPostType:
     event_discount: int
     is_deleted: bool
     hit: int
-    cart_cnt: int
+    basket_cnt: int
     order_cnt: int
     seo_data: str
     grouppurchase_cnt: int
-
+    photos: typing.List[PhotoType]
+    video: "VideoType"
 
 @strawberry.django.type(models.Category)
 class Category:

@@ -1,11 +1,11 @@
 import strawberry
 import typing
 from users import schema as users_schema
-from carts import schema as carts_schema
+from baskets import schema as baskets_schema
 
 
 @strawberry.type
-class Query(users_schema.Query, carts_schema.Query):
+class Query(users_schema.Query, baskets_schema.Query):
     # urls.py와 같이 movies field와 resolver를 연결시켜주는거지.
     pass
 
